@@ -1,0 +1,34 @@
+# Configuration for Hyperspectral Data Preprocessing and 3D-CNN Model
+dataset:
+  raw_hsi_dir: "data/raw/hsi"
+  processed_dir: "data/processed/hsi"
+  total_bands: 1200
+  wavelength_min: 400.0   # nm
+  wavelength_max: 1000.0  # nm
+  img_size: [128, 128]
+  split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+    random_seed: 42
+
+calibration:
+  epsilon: 1.0e-6
+  min_max_norm: true
+
+model:
+  name: "SpectralSpatial3DCNN"
+  selected_bands: 10
+  embedding_dim: 128
+  dropout_rate: 0.3
+  spatial_kernel: [3, 3, 3]
+  num_classes: 7
+
+training:
+  batch_size: 16
+  epochs: 50
+  learning_rate: 0.0001
+  loss: "hybrid"  # cross-entropy + metric loss
+  metric_loss_weight: 0.4
+  early_stopping_patience: 8
+  reduce_lr_patience: 4
