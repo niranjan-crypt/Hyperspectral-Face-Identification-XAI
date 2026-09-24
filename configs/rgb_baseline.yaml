@@ -1,0 +1,42 @@
+# Configuration for RGB Baseline Model (UISM-Net & Benchmarks)
+dataset:
+  raw_dir: "data/raw/rgb"
+  split_dir: "data/processed/rgb/dataset_split"
+  augmented_train_dir: "data/processed/rgb/dataset_split/train_augmented"
+  img_size: [128, 128]
+  split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+    random_seed: 42
+  synthesis:
+    num_crops: 4
+    crop_scale_min: 0.80
+    crop_scale_max: 1.00
+    random_horizontal_flip: true
+
+face_cropping:
+  cascade_path: "haarcascade_frontalface_default.xml"
+  scale_factor: 1.1
+  min_neighbors: 5
+  min_size: [30, 30]
+  margin_ratio: 0.20
+
+uism_net:
+  backbone: "MobileNetV2"
+  weights: "imagenet"
+  freeze_backbone: true
+  embedding_dim: 128
+  hypersphere_l2_norm: true
+  dropout_rate: 0.30
+  num_classes: 7
+
+training:
+  batch_size: 16
+  epochs: 40
+  learning_rate: 0.0001
+  early_stopping_patience: 8
+  reduce_lr_patience: 4
+  reduce_lr_factor: 0.50
+  min_lr: 1.0e-6
+  class_weights: "balanced"
