@@ -1,0 +1,26 @@
+{
+  "fitness_minimization": {
+    "friedman_stat": 5.920000000000002,
+    "p_value": 0.20520291200399413,
+    "average_ranks": {
+      "PUMA": 1.6,
+      "PSO": 2.8,
+      "WOA": 3.4,
+      "GWO": 3.4,
+      "DE": 3.8
+    },
+    "best_ranked_algorithm": "PUMA"
+  },
+  "accuracy_maximization": {
+    "friedman_stat": 4.9696969696969715,
+    "p_value": 0.2904209322287365,
+    "average_ranks": {
+      "PUMA": 1.8,
+      "GWO": 2.8,
+      "WOA": 3.2,
+      "PSO": 3.4,
+      "DE": 3.8
+    },
+    "best_ranked_algorithm": "PUMA"
+  }
+}

@@ -1,0 +1,29 @@
+# Core Deep Learning & Computer Vision
+tensorflow>=2.15.0
+opencv-python>=4.8.0.76
+pillow>=10.0.0
+pillow-heif>=0.14.0
+
+# Scientific Computing & Machine Learning
+numpy>=1.24.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+scikit-image>=0.21.0
+pandas>=2.0.0
+
+# Explainable AI (XAI)
+shap>=0.43.0
+lime>=0.2.0.1
+
+# Metaheuristic Band Selection Optimization
+pyswarms>=1.3.0
+mealpy>=3.0.0
+
+# Visualization & Reporting
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Configuration, Utilities & Testing
+pyyaml>=6.0
+tqdm>=4.66.0
+pytest>=7.4.0

@@ -1,0 +1,74 @@
+# Central Configuration for Hyperspectral Face Recognition with PUMA Band Optimization
+
+dataset:
+  base_dir: "."
+  raw_spe: "dataset1.spe"
+  hdr_file: "dataset1.hdr"
+  ref_spe: "dataset1_Ref.spe"
+  figspec_white: "dataset1.figspecwhite"
+  figspec_black: "dataset1.figspecblack"
+  calibration_table: "dataset1.xlsx"
+  preview_jpg: "dataset1.jpg"
+
+geometry:
+  samples: 1920
+  lines: 1920
+  bands: 1200
+  interleave: "bil"
+  byte_order: 0
+  dtype: "uint16"
+
+# 7 Subjects Facial Bounding Boxes [y_min, y_max, x_min, x_max] (1920 x 1920 frame)
+# Group layout in dataset1.jpg:
+# Back row: Sub1 (x: 480-680), Sub2 (x: 820-1020), Sub3 (x: 1100-1300)
+# Front row: Sub4 (x: 230-480), Sub5 (x: 520-750), Sub6 (x: 820-1050), Sub7 (x: 1120-1350)
+rois:
+  sub1_back_left:    [820, 990, 610, 750]
+  sub2_back_center:  [830, 1000, 900, 1040]
+  sub3_back_right:   [840, 1020, 1200, 1350]
+  sub4_front_left:   [990, 1180, 460, 620]
+  sub5_front_midl:   [1000, 1200, 770, 930]
+  sub6_front_midr:   [1040, 1230, 1000, 1160]
+  sub7_front_right:  [1040, 1240, 1220, 1390]
+
+split:
+  train_ratio: 0.60
+  val_ratio: 0.20
+  test_ratio: 0.20
+  spatial_block_size: 16  # Disjoint spatial blocks to strictly prevent data leakage
+  random_seed: 42
+
+preprocessing:
+  normalizer: "l2"        # "l2", "standard", "minmax"
+  remove_noisy_edges: true
+  min_wavelength_nm: 410.0
+  max_wavelength_nm: 980.0
+
+fitness:
+  w_accuracy: 0.80
+  w_redundancy: 0.20
+  w_size: 0.00
+  classifier: "nearest_centroid"  # "nearest_centroid", "linear_svm"
+  metric: "cosine"                # "cosine", "euclidean"
+
+optimization:
+  k_bands: 30                     # Candidate band subset size
+  final_target_bands: 3           # Final optimal multispectral band count
+  pop_size: 30                    # Population size (agents)
+  iterations: 50                  # Optimization generations
+  runs: 5                         # Independent experiment runs
+  random_seeds: [42, 123, 456, 789, 999]
+  algorithms:
+    - "PUMA"
+    - "PSO"
+    - "WOA"
+    - "GWO"
+    - "DE"
+
+outputs:
+  base_dir: "outputs"
+  checkpoints_dir: "outputs/checkpoints"
+  figures_dir: "outputs/figures"
+  tables_dir: "outputs/tables"
+  multispectral_dir: "outputs/multispectral"
+  cache_dir: "outputs/cache"

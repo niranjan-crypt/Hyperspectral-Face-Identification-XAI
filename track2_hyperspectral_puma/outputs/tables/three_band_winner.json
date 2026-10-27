@@ -1,0 +1,55 @@
+{
+  "best_three_bands_filtered": [
+    328,
+    563,
+    882
+  ],
+  "best_three_bands_original": [
+    362,
+    597,
+    916
+  ],
+  "best_three_wavelengths": [
+    587.4099731445312,
+    709.3400268554688,
+    871.8699951171875
+  ],
+  "comparison_table": [
+    {
+      "Configuration": "PO-3 bands (Puma Optimised)",
+      "Bands Count": 3,
+      "Band Wavelengths (nm)": "587.4, 709.3, 871.9",
+      "OA": 0.3797142301710731,
+      "F1": 0.34473208709817016,
+      "Kappa": 0.2737612008723156,
+      "Redundancy": 0.2979848384857178
+    },
+    {
+      "Configuration": "RGB-equivalent bands",
+      "Bands Count": 3,
+      "Band Wavelengths (nm)": "650.0, 550.1, 449.7",
+      "OA": 0.36486683514774493,
+      "F1": 0.34332925237403356,
+      "Kappa": 0.26101560512363264,
+      "Redundancy": 0.6793895363807678
+    },
+    {
+      "Configuration": "Random 3 bands (mean of 30)",
+      "Bands Count": 3,
+      "Band Wavelengths (nm)": "Random uniform",
+      "OA": 0.29256010238465524,
+      "F1": 0.23035265972353153,
+      "Kappa": 0.1718741095271638,
+      "Redundancy": 0.7737265398104985
+    },
+    {
+      "Configuration": "All bands (full spectrum)",
+      "Bands Count": 925,
+      "Band Wavelengths (nm)": "412.3 - 893.1",
+      "OA": 0.30931667962674964,
+      "F1": 0.24122757300544986,
+      "Kappa": 0.1909662536309925,
+      "Redundancy": 0.7447512745857239
+    }
+  ]
+}

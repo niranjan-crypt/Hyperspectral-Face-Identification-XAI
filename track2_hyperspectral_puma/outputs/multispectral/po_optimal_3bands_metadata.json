@@ -1,0 +1,22 @@
+{
+  "name": "po_optimal_3bands",
+  "spatial_dimensions": {
+    "lines": 1920,
+    "samples": 1920
+  },
+  "num_selected_bands": 3,
+  "original_band_indices": [
+    362,
+    597,
+    916
+  ],
+  "wavelengths_nm": [
+    587.4099731445312,
+    709.3400268554688,
+    871.8699951171875
+  ],
+  "data_type": "uint16",
+  "file_npy": "po_optimal_3bands_multispectral.npy",
+  "file_tiff": "po_optimal_3bands_multispectral.tiff",
+  "scientific_note": "Band selection extracts a discrete subset of existing hyperspectral channels. This reduces data bandwidth and redundant dimensionality, but is mathematically distinct from simulating or manufacturing a physical multispectral sensor with broad spectral response filter curves."
+}
