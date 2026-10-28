@@ -1,6 +1,7 @@
 """
-Smoke test script for verifying all 5 metaheuristic band selection algorithms.
-Runs 2 iterations with population size 6 in ~15-20 seconds.
+Smoke test script for verifying all 5 metaheuristic band optimization algorithms.
+Performs pure unsupervised band optimization (no classifier training or testing).
+Runs 2 iterations with population size 6 in ~2-5 seconds.
 """
 
 import os
@@ -23,9 +24,10 @@ from src.optimization import (
 
 
 def run_smoke_test():
-    print("=" * 65)
-    print("STARTING RAPID SMOKE TEST: ALL 5 OPTIMIZATION ALGORITHMS")
-    print("=" * 65)
+    print("=" * 70)
+    print("STARTING RAPID SMOKE TEST: ALL 5 BAND OPTIMIZATION ALGORITHMS")
+    print("Mode: Pure Unsupervised Band Optimization (No Training/Testing)")
+    print("=" * 70)
 
     cfg = load_config("configs/default_config.yaml")
 
@@ -40,26 +42,22 @@ def run_smoke_test():
     band_filter.fit(dataset.wavelengths, dataset.X_train)
 
     X_train_f = band_filter.transform(dataset.X_train)
-    X_val_f = band_filter.transform(dataset.X_val)
-
     normalizer = SpectralNormalizer(method="l2").fit(X_train_f)
     X_train_norm = normalizer.transform(X_train_f)
-    X_val_norm = normalizer.transform(X_val_f)
 
-    # 3. Setup Fitness Evaluator
-    print("[3/4] Initializing multi-objective fitness evaluator...")
+    # 3. Setup Unsupervised Fitness Evaluator
+    print("[3/4] Initializing unsupervised band fitness evaluator...")
     evaluator = BandFitnessEvaluator(
         X_train=X_train_norm,
-        y_train=dataset.y_train,
-        X_val=X_val_norm,
-        y_val=dataset.y_val,
-        w_accuracy=0.80,
-        w_redundancy=0.20,
+        w_redundancy=0.50,
+        w_information=0.50,
+        w_accuracy=0.00,
+        mode="unsupervised",
     )
 
-    # 4. Smoke Test all 5 algorithms
+    # 4. Smoke Test all 5 algorithms on 3 bands
     total_bands = X_train_norm.shape[1]
-    k_bands = 10
+    k_bands = 3
     pop_size = 6
     max_iter = 2
     seed = 42
@@ -73,8 +71,8 @@ def run_smoke_test():
     ]
 
     print("\n[4/4] Running 2 iterations per algorithm:")
-    print(f"{'Algorithm':<10} | {'Best Fitness':<12} | {'Val Acc (%)':<12} | {'Redundancy':<12} | {'Time (s)':<10} | {'RAM (MB)':<10}")
-    print("-" * 75)
+    print(f"{'Algorithm':<10} | {'Best Fitness':<12} | {'Redundancy':<12} | {'Info Entropy':<12} | {'Time (s)':<10} | {'RAM (MB)':<10}")
+    print("-" * 80)
 
     all_passed = True
     for opt in optimizers:
@@ -92,16 +90,16 @@ def run_smoke_test():
             all_passed = False
 
         print(
-            f"{opt.name:<10} | {res.best_fitness:<12.4f} | {details['accuracy_val']*100:<12.2f} | "
-            f"{details['redundancy']:<12.4f} | {t_cost:<10.2f} | {res.peak_memory_mb:<10.2f}"
+            f"{opt.name:<10} | {res.best_fitness:<12.4f} | {details['redundancy']:<12.4f} | "
+            f"{details['information_entropy']:<12.4f} | {t_cost:<10.2f} | {res.peak_memory_mb:<10.2f}"
         )
 
-    print("=" * 75)
+    print("=" * 80)
     if all_passed:
-        print("[SUCCESS] All 5 optimization algorithms completed smoke test successfully!")
+        print("[SUCCESS] All 5 band optimization algorithms passed smoke test successfully!")
     else:
         print("[FAILED] One or more algorithms failed constraints.")
-    print("=" * 75)
+    print("=" * 80)
 
 
 if __name__ == "__main__":
