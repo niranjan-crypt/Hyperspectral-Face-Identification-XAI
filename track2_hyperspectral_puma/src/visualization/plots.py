@@ -1,7 +1,7 @@
 """
 Publication-quality scientific visualization module.
-Generates convergence curves, metric boxplots, spectral band selection histograms,
-mean spectral signatures of the 7 subjects, and 3-band composite visualizations.
+Generates convergence curves, band optimization metric boxplots, spectral band selection histograms,
+mean spectral signatures of human subjects, and inter-band correlation heatmaps.
 """
 
 import os
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 class Visualizer:
-    """Creates scientific plots and figures for experimental reporting."""
+    """Creates scientific plots and figures for band optimization reporting."""
 
     def __init__(self, output_dir: str = "outputs/figures"):
         self.output_dir = output_dir
@@ -46,7 +46,7 @@ class Visualizer:
             ax.plot(iters, mean_curve, label=algo, lw=2.0, color=color)
             ax.fill_between(iters, mean_curve - std_curve, mean_curve + std_curve, alpha=0.15, color=color)
 
-        ax.set_title("Optimization Convergence Curves (Mean ± 1 Std across Runs)")
+        ax.set_title("Band Optimization Convergence (Mean ± 1 Std across Runs)")
         ax.set_xlabel("Iteration")
         ax.set_ylabel("Fitness Score (Minimization)")
         ax.grid(True, linestyle="--", alpha=0.5)
@@ -59,30 +59,30 @@ class Visualizer:
         return save_path
 
     def plot_metrics_comparison(self, benchmark_results: Dict[str, List[Dict[str, Any]]], filename: str = "metrics_boxplot.png") -> str:
-        """Plots boxplots for Overall Accuracy, F1-macro, and Cohen's Kappa."""
-        fig, axes = plt.subplots(1, 3, figsize=(14, 4.5))
+        """Plots boxplots for Fitness Score, Inter-Band Redundancy, and Information Entropy."""
+        fig, axes = plt.subplots(1, 3, figsize=(15, 4.8))
         algos = list(benchmark_results.keys())
 
-        oa_data = [[r["test_accuracy"] * 100 for r in benchmark_results[a]] for a in algos]
-        f1_data = [[r["test_f1"] for r in benchmark_results[a]] for a in algos]
-        kappa_data = [[r["test_kappa"] for r in benchmark_results[a]] for a in algos]
+        fitness_data = [[r["best_fitness"] for r in benchmark_results[a]] for a in algos]
+        redundancy_data = [[r["redundancy"] for r in benchmark_results[a]] for a in algos]
+        entropy_data = [[r["information_entropy"] for r in benchmark_results[a]] for a in algos]
 
-        # Overall Accuracy
-        bp1 = axes[0].boxplot(oa_data, labels=algos, patch_artist=True)
-        axes[0].set_title("Overall Accuracy (%)")
-        axes[0].set_ylabel("Accuracy (%)")
+        # 1. Best Fitness
+        bp1 = axes[0].boxplot(fitness_data, labels=algos, patch_artist=True)
+        axes[0].set_title("Optimization Fitness (Lower is Better)")
+        axes[0].set_ylabel("Fitness Value")
         axes[0].grid(True, linestyle="--", alpha=0.5)
 
-        # F1 Macro
-        bp2 = axes[1].boxplot(f1_data, labels=algos, patch_artist=True)
-        axes[1].set_title("Macro F1-Score")
-        axes[1].set_ylabel("F1 Score")
+        # 2. Inter-Band Redundancy
+        bp2 = axes[1].boxplot(redundancy_data, labels=algos, patch_artist=True)
+        axes[1].set_title("Inter-Band Redundancy (Lower is Better)")
+        axes[1].set_ylabel("Mean Pairwise Pearson Correlation")
         axes[1].grid(True, linestyle="--", alpha=0.5)
 
-        # Kappa
-        bp3 = axes[2].boxplot(kappa_data, labels=algos, patch_artist=True)
-        axes[2].set_title("Cohen's Kappa Coefficient")
-        axes[2].set_ylabel("Kappa")
+        # 3. Information Entropy
+        bp3 = axes[2].boxplot(entropy_data, labels=algos, patch_artist=True)
+        axes[2].set_title("Information Entropy (Higher is Better)")
+        axes[2].set_ylabel("Shannon Entropy (Normalized)")
         axes[2].grid(True, linestyle="--", alpha=0.5)
 
         palette = ["#D95F02", "#7570B3", "#1B9E77", "#E7298A", "#66A61E"]
@@ -123,22 +123,28 @@ class Visualizer:
         self,
         wavelengths: np.ndarray,
         X_train: np.ndarray,
-        y_train: np.ndarray,
-        subject_names: List[str],
+        y_train: Optional[np.ndarray] = None,
+        subject_names: Optional[List[str]] = None,
         selected_3_wavelengths: Optional[Sequence[float]] = None,
         filename: str = "spectral_signatures.png",
     ) -> str:
-        """Plots mean reflectance spectral signature for each of the 7 subjects with selected 3 bands marked."""
+        """Plots mean reflectance spectral signatures with selected optimal bands marked."""
         fig, ax = plt.subplots(figsize=(10, 5.5))
-        classes = np.unique(y_train)
 
-        for c in classes:
-            mask = (y_train == c)
-            mean_sig = np.mean(X_train[mask], axis=0)
-            std_sig = np.std(X_train[mask], axis=0)
-            name = subject_names[c] if c < len(subject_names) else f"Subject {c+1}"
-            p = ax.plot(wavelengths, mean_sig, lw=1.8, label=name)
-            ax.fill_between(wavelengths, mean_sig - 0.5 * std_sig, mean_sig + 0.5 * std_sig, alpha=0.1, color=p[0].get_color())
+        if y_train is not None and subject_names is not None:
+            classes = np.unique(y_train)
+            for c in classes:
+                mask = (y_train == c)
+                mean_sig = np.mean(X_train[mask], axis=0)
+                std_sig = np.std(X_train[mask], axis=0)
+                name = subject_names[c] if c < len(subject_names) else f"Subject {c+1}"
+                p = ax.plot(wavelengths, mean_sig, lw=1.8, label=name)
+                ax.fill_between(wavelengths, mean_sig - 0.5 * std_sig, mean_sig + 0.5 * std_sig, alpha=0.1, color=p[0].get_color())
+        else:
+            mean_sig = np.mean(X_train, axis=0)
+            std_sig = np.std(X_train, axis=0)
+            ax.plot(wavelengths, mean_sig, lw=2.0, color="#1A365D", label="Mean Spectral Profile")
+            ax.fill_between(wavelengths, mean_sig - std_sig, mean_sig + std_sig, alpha=0.15, color="#2B6CB0")
 
         if selected_3_wavelengths is not None:
             for idx, wl in enumerate(selected_3_wavelengths):
@@ -146,16 +152,48 @@ class Visualizer:
                     wl,
                     color="#D95F02",
                     linestyle="--",
-                    lw=2.0,
-                    alpha=0.85,
-                    label=f"Selected Band {idx+1} ({wl:.1f} nm)" if idx == 0 else f"Band {idx+1} ({wl:.1f} nm)",
+                    lw=2.2,
+                    alpha=0.9,
+                    label=f"Optimal Band {idx+1} ({wl:.1f} nm)",
                 )
 
-        ax.set_title("Calibrated Spectral Signatures of 7 Human Subjects with Selected 3 Bands")
+        ax.set_title("Calibrated Facial Spectral Reflectance Signatures with PUMA Optimal Bands")
         ax.set_xlabel("Wavelength (nm)")
         ax.set_ylabel("Reflectance (Normalized)")
         ax.grid(True, linestyle="--", alpha=0.5)
         ax.legend(loc="upper right", ncol=2, frameon=True)
+
+        save_path = os.path.join(self.output_dir, filename)
+        fig.tight_layout()
+        fig.savefig(save_path, dpi=300)
+        plt.close(fig)
+        return save_path
+
+    def plot_correlation_heatmap(
+        self,
+        full_corr: np.ndarray,
+        selected_bands: Sequence[int],
+        selected_wavelengths: Sequence[float],
+        filename: str = "correlation_heatmap.png",
+    ) -> str:
+        """Plots comparison heatmaps: full spectrum correlation vs. optimized subset correlation."""
+        fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+        # 1. Full Spectrum Correlation (Subsampled for clear viewing)
+        sub_sample = max(1, len(full_corr) // 100)
+        im1 = axes[0].imshow(full_corr[::sub_sample, ::sub_sample], cmap="viridis", vmin=0, vmax=1)
+        axes[0].set_title(f"Full Spectrum Correlation ({len(full_corr)} Bands)\nHigh Inter-Band Redundancy")
+        axes[0].set_xlabel("Band Index")
+        axes[0].set_ylabel("Band Index")
+        fig.colorbar(im1, ax=axes[0], fraction=0.046, pad=0.04)
+
+        # 2. Optimized Subset Correlation
+        sub_corr = full_corr[np.ix_(selected_bands, selected_bands)]
+        im2 = axes[1].imshow(sub_corr, cmap="viridis", vmin=0, vmax=1)
+        axes[1].set_title(f"Optimized Band Subset Correlation ({len(selected_bands)} Bands)\nMinimal Redundancy Decoupled")
+        axes[1].set_xlabel("Selected Band Index")
+        axes[1].set_ylabel("Selected Band Index")
+        fig.colorbar(im2, ax=axes[1], fraction=0.046, pad=0.04)
 
         save_path = os.path.join(self.output_dir, filename)
         fig.tight_layout()

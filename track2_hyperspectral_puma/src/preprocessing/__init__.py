@@ -1,8 +1,9 @@
 """
-Hyperspectral preprocessing and spectral filtering modules.
+Spectral preprocessing modules: Band filtering and spectral normalization.
 """
 
-from .normalizer import SpectralNormalizer
 from .snr_filter import SpectralBandFilter
+from .normalizer import SpectralNormalizer
 
-__all__ = ["SpectralNormalizer", "SpectralBandFilter"]
+__all__ = ["SpectralBandFilter", "SpectralNormalizer"]
+

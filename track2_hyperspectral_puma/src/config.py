@@ -24,7 +24,7 @@ class DatasetConfig:
         candidate = os.path.join(self.base_dir, rel)
         if os.path.exists(candidate):
             return candidate
-        # Check fallback search locations (current dir, parent dir, data folder, package root)
+        # Fallback search locations: parent directory, data folder, repo root
         package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         repo_root = os.path.dirname(package_root)
         for d in [".", "..", "data", os.path.join("..", "data"), repo_root, package_root]:
@@ -63,11 +63,13 @@ class PreprocessingConfig:
 
 @dataclass
 class FitnessConfig:
-    w_accuracy: float
-    w_redundancy: float
-    w_size: float
-    classifier: str
-    metric: str
+    w_accuracy: float = 0.00
+    w_redundancy: float = 0.50
+    w_information: float = 0.50
+    w_size: float = 0.00
+    mode: str = "unsupervised"
+    classifier: str = "nearest_centroid"
+    metric: str = "cosine"
 
 
 @dataclass
@@ -106,14 +108,7 @@ class AppConfig:
 def load_config(config_path: str = "configs/default_config.yaml") -> AppConfig:
     """Load and parse YAML configuration into strongly-typed AppConfig."""
     if not os.path.exists(config_path):
-        pkg_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        alt = os.path.join(pkg_root, config_path)
-        if os.path.exists(alt):
-            config_path = alt
-        elif os.path.exists(os.path.join(os.path.dirname(pkg_root), config_path)):
-            config_path = os.path.join(os.path.dirname(pkg_root), config_path)
-        else:
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
     with open(config_path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)

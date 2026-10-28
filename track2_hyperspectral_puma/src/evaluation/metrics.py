@@ -1,40 +1,11 @@
 """
 Comprehensive scientific evaluation metrics:
-Overall Accuracy (OA), Macro Precision, Macro Recall, Macro F1, Cohen's Kappa,
-and spectral redundancy / diversity metrics.
+Focuses on intrinsic spectral band optimization metrics (redundancy, information entropy,
+spectral span, dynamic range) without requiring classifier training or testing.
 """
 
-from typing import Dict, List, Sequence
+from typing import Dict, List, Sequence, Optional
 import numpy as np
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, cohen_kappa_score
-
-from ..features.classifier import FastNearestCentroid
-
-
-class ClassificationEvaluator:
-    """Computes comprehensive classification metrics on held-out test partitions."""
-
-    def __init__(self, metric: str = "cosine"):
-        self.metric = metric
-
-    def evaluate(
-        self,
-        X_train_sub: np.ndarray,
-        y_train: np.ndarray,
-        X_test_sub: np.ndarray,
-        y_test: np.ndarray,
-    ) -> Dict[str, float]:
-        clf = FastNearestCentroid(metric=self.metric)
-        clf.fit(X_train_sub, y_train)
-        preds = clf.predict(X_test_sub)
-
-        return {
-            "accuracy": float(accuracy_score(y_test, preds)),
-            "precision": float(precision_score(y_test, preds, average="macro", zero_division=0)),
-            "recall": float(recall_score(y_test, preds, average="macro", zero_division=0)),
-            "f1_macro": float(f1_score(y_test, preds, average="macro", zero_division=0)),
-            "kappa": float(cohen_kappa_score(y_test, preds)),
-        }
 
 
 class RedundancyEvaluator:
@@ -53,3 +24,41 @@ class RedundancyEvaluator:
     def calculate_spectral_span_nm(wavelengths: np.ndarray, bands: Sequence[int]) -> float:
         wl_sub = wavelengths[list(bands)]
         return float(np.max(wl_sub) - np.min(wl_sub))
+
+
+class BandOptimizationEvaluator:
+    """Evaluates the intrinsic quality of selected spectral bands without classifier training/testing."""
+
+    @staticmethod
+    def evaluate_bands(
+        corr_matrix: np.ndarray,
+        entropies: np.ndarray,
+        variances: np.ndarray,
+        wavelengths: np.ndarray,
+        bands: Sequence[int],
+    ) -> Dict[str, float]:
+        k = len(bands)
+        if k == 0:
+            return {
+                "redundancy": 1.0,
+                "information_entropy": 0.0,
+                "mean_variance": 0.0,
+                "spectral_span_nm": 0.0,
+                "num_bands": 0,
+            }
+
+        redundancy = RedundancyEvaluator.calculate_redundancy(corr_matrix, bands)
+        span_nm = RedundancyEvaluator.calculate_spectral_span_nm(wavelengths, bands)
+        mean_entropy = float(np.mean(entropies[list(bands)]))
+        mean_var = float(np.mean(variances[list(bands)]))
+
+        return {
+            "redundancy": float(redundancy),
+            "information_entropy": float(mean_entropy),
+            "mean_variance": float(mean_var),
+            "spectral_span_nm": float(span_nm),
+            "num_bands": k,
+        }
+
+
+

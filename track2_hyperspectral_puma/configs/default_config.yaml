@@ -45,25 +45,25 @@ preprocessing:
   max_wavelength_nm: 980.0
 
 fitness:
-  w_accuracy: 0.80
-  w_redundancy: 0.20
+  mode: "unsupervised"            # Unsupervised band optimization (no classifier training/testing)
+  w_redundancy: 0.50              # Weight for minimizing inter-band correlation
+  w_information: 0.50             # Weight for maximizing information entropy
+  w_accuracy: 0.00                # Set to 0: zero classifier training or testing
   w_size: 0.00
-  classifier: "nearest_centroid"  # "nearest_centroid", "linear_svm"
-  metric: "cosine"                # "cosine", "euclidean"
 
 optimization:
-  k_bands: 30                     # Candidate band subset size
-  final_target_bands: 3           # Final optimal multispectral band count
+  k_bands: 3                      # Target: Directly optimize and minimize to 3 bands
+  final_target_bands: 3           # Final optimal 3 bands
   pop_size: 30                    # Population size (agents)
   iterations: 50                  # Optimization generations
   runs: 5                         # Independent experiment runs
   random_seeds: [42, 123, 456, 789, 999]
   algorithms:
-    - "PUMA"
-    - "PSO"
-    - "WOA"
-    - "GWO"
-    - "DE"
+    - "PUMA"                      # Proposed Puma Optimizer
+    - "PSO"                       # Benchmark technique 1
+    - "WOA"                       # Benchmark technique 2
+    - "GWO"                       # Benchmark technique 3
+    - "DE"                        # Benchmark technique 4
 
 outputs:
   base_dir: "outputs"

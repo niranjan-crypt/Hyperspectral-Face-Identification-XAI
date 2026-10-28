@@ -1,22 +1,14 @@
 """
-Spectral band filter and Signal-to-Noise Ratio (SNR) / dead-band detector.
-Explicitly records every retained and excluded band with exact reasons.
+Radiometric and SNR-based spectral band filter.
+Filters dead channels, zero-variance detectors, and noisy sensor edge wavelengths (<410nm, >980nm).
 """
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Sequence
 import numpy as np
 
 
-@dataclass
-class BandExclusionRecord:
-    original_index: int
-    wavelength_nm: float
-    reason: str
-
-
 class SpectralBandFilter:
-    """Filters noisy, uncalibrated, or low-SNR spectral channels."""
+    """Filters noisy, unresponsive, and dead spectral channels."""
 
     def __init__(
         self,
@@ -28,94 +20,73 @@ class SpectralBandFilter:
         self.max_wl = max_wavelength_nm
         self.min_var = min_variance
 
-        self.valid_indices: Optional[np.ndarray] = None
-        self.valid_wavelengths: Optional[np.ndarray] = None
-        self.exclusions: List[BandExclusionRecord] = []
+        self.valid_indices: np.ndarray = np.array([], dtype=int)
+        self.valid_wavelengths: np.ndarray = np.array([], dtype=np.float32)
+        self.total_original_bands: int = 0
+        self.below_wl_count: int = 0
+        self.dead_channels_count: int = 0
+        self.above_wl_count: int = 0
 
-    def fit(self, wavelengths: np.ndarray, X_train: Optional[np.ndarray] = None) -> "SpectralBandFilter":
-        """
-        Analyzes bands for edge cutoffs and dead/flat channels.
-        Records every exclusion explicitly.
-        """
-        self.exclusions = []
-        valid_idx_list = []
+    def fit(self, wavelengths: np.ndarray, X: np.ndarray):
+        """Identifies valid bands satisfying SNR, variance, and wavelength bounds."""
+        self.total_original_bands = len(wavelengths)
+        variances = np.var(X, axis=0)
 
-        # Compute variance across training pixels if provided
-        var_per_band = None
-        if X_train is not None:
-            var_per_band = np.var(X_train, axis=0)
+        valid_list = []
+        below_list = []
+        dead_list = []
+        above_list = []
 
-        for idx, wl in enumerate(wavelengths):
+        for b in range(self.total_original_bands):
+            wl = wavelengths[b]
+            var = variances[b]
+
             if wl < self.min_wl:
-                self.exclusions.append(
-                    BandExclusionRecord(
-                        original_index=idx,
-                        wavelength_nm=float(wl),
-                        reason=f"Below reliable sensor response threshold (< {self.min_wl:.1f} nm)",
-                    )
-                )
+                below_list.append(b)
             elif wl > self.max_wl:
-                self.exclusions.append(
-                    BandExclusionRecord(
-                        original_index=idx,
-                        wavelength_nm=float(wl),
-                        reason=f"Above reliable NIR detector response threshold (> {self.max_wl:.1f} nm)",
-                    )
-                )
-            elif var_per_band is not None and (var_per_band[idx] < self.min_var or np.isnan(var_per_band[idx])):
-                self.exclusions.append(
-                    BandExclusionRecord(
-                        original_index=idx,
-                        wavelength_nm=float(wl),
-                        reason=f"Dead or near-zero variance channel (< {self.min_var:.1e})",
-                    )
-                )
+                above_list.append(b)
+            elif var < self.min_var:
+                dead_list.append(b)
             else:
-                valid_idx_list.append(idx)
+                valid_list.append(b)
 
-        self.valid_indices = np.array(valid_idx_list, dtype=np.int32)
-        self.valid_wavelengths = wavelengths[self.valid_indices]
+        self.valid_indices = np.array(valid_list, dtype=int)
+        self.valid_wavelengths = wavelengths[self.valid_indices].astype(np.float32)
+        self.below_wl_count = len(below_list)
+        self.dead_channels_count = len(dead_list)
+        self.above_wl_count = len(above_list)
         return self
 
     def transform(self, X: np.ndarray) -> np.ndarray:
-        """Slices array along spectral dimension to retain only valid channels."""
-        if self.valid_indices is None:
-            raise ValueError("Band filter must be fitted before calling transform!")
-        return X[..., self.valid_indices]
+        """Selects valid channels from input array."""
+        return X[:, self.valid_indices]
 
-    def get_original_index(self, filtered_index: int) -> int:
-        """Maps a filtered band index back to the original sensor band index."""
-        if self.valid_indices is None:
-            raise ValueError("Filter has not been fitted!")
-        return int(self.valid_indices[filtered_index])
+    def fit_transform(self, wavelengths: np.ndarray, X: np.ndarray) -> np.ndarray:
+        return self.fit(wavelengths, X).transform(X)
 
-    def get_original_wavelength(self, filtered_index: int) -> float:
-        """Returns the physical wavelength for a filtered band index."""
-        if self.valid_wavelengths is None:
-            raise ValueError("Filter has not been fitted!")
-        return float(self.valid_wavelengths[filtered_index])
+    def get_original_index(self, filtered_idx: int) -> int:
+        """Maps a filtered band index back to the original camera sensor index."""
+        return int(self.valid_indices[filtered_idx])
+
+    def get_original_wavelength(self, filtered_idx: int) -> float:
+        """Returns the wavelength in nm for a filtered band index."""
+        return float(self.valid_wavelengths[filtered_idx])
 
     def summary(self) -> str:
-        """Returns a formatted summary of excluded and retained channels."""
-        total_bands = len(self.valid_indices) + len(self.exclusions)
-        retained = len(self.valid_indices)
-        excluded = len(self.exclusions)
-
+        """Returns detailed scientific band filtering report."""
+        excluded = self.below_wl_count + self.dead_channels_count + self.above_wl_count
         lines = [
             "=" * 60,
             "SPECTRAL BAND FILTERING REPORT",
             "=" * 60,
-            f"Original sensor bands : {total_bands} (indices 0 to {total_bands - 1})",
-            f"Retained active bands : {retained} ({self.valid_wavelengths[0]:.2f} nm to {self.valid_wavelengths[-1]:.2f} nm)",
+            f"Original sensor bands : {self.total_original_bands} (indices 0 to {self.total_original_bands - 1})",
+            f"Retained active bands : {len(self.valid_indices)} ({self.valid_wavelengths[0]:.2f} nm to {self.valid_wavelengths[-1]:.2f} nm)",
             f"Excluded noise bands  : {excluded}",
             "-" * 60,
+            f"  [{self.below_wl_count} bands] Below reliable sensor response threshold (< {self.min_wl:.1f} nm): Indices 0 to {self.below_wl_count - 1}",
+            f"  [{self.dead_channels_count} bands] Dead or near-zero variance channel (< {self.min_var:.1e})",
+            f"  [{self.above_wl_count} bands] Above reliable NIR detector response threshold (> {self.max_wl:.1f} nm)",
+            "=" * 60,
         ]
-        # Group exclusions by reason
-        reasons = {}
-        for rec in self.exclusions:
-            reasons.setdefault(rec.reason, []).append(rec.original_index)
-
-        for reason, indices in reasons.items():
-            lines.append(f"  [{len(indices)} bands] {reason}: Indices {min(indices)} to {max(indices)}")
-        lines.append("=" * 60)
         return "\n".join(lines)
+
