@@ -74,7 +74,15 @@ wandb/
 !track2_hyperspectral_puma/outputs/tables/*.json
 !outputs/*.pdf
 !track2_hyperspectral_puma/outputs/*.pdf
+!track2_hyperspectral_puma/outputs/multispectral/po_optimal_3bands_multispectral.npy
+!track2_hyperspectral_puma/outputs/multispectral/po_optimal_3bands_multispectral.tiff
+!track2_hyperspectral_puma/outputs/multispectral/*.json
 !comparison_results.csv
 !dataset1.hdr
 !dataset1.xlsx
 !dataset1.jpg
+
+# Deliverable packaging archives
+PUMA_3Band_Optimization_Deliverables/
+PUMA_3Band_Optimization_Deliverables.zip
+

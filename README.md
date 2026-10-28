@@ -118,27 +118,24 @@ Hyperspectral-Face-Identification-XAI/
 │   ├── diagnose_dataset.py                    # Zero-dependency ENVI dataset diagnostic tool
 │   ├── main.py                                # Master runner: executes Parts 1 to 4 end-to-end
 │   ├── scripts/
-│   │   ├── run_smoke_test.py                  # Rapid 15-second verification test across all 5 optimizers
+│   │   ├── run_smoke_test.py                  # Rapid 2-second smoke verification test
 │   │   ├── run_full_experiment.py             # 5-seed research pipeline (PUMA, WOA, GWO, PSO, DE)
-│   │   ├── run_accuracy_boost.py              # Spatial-spectral & ensemble classifier booster
-│   │   ├── run_advanced_proofs.py             # Wilcoxon signed-rank, Friedman rank & information proofs
 │   │   └── generate_pdf_report.py             # Publication-grade Executive PDF report generator
 │   ├── src/
 │   │   ├── config.py                          # Strongly-typed configuration dataclasses
 │   │   ├── data/                              # Zero-copy memory-mapped ENVI reader, calibration, ROI extraction
-│   │   ├── preprocessing/                     # SNR band filtering, spectral normalizers, retinex
-│   │   ├── features/                          # Nearest Centroid, Linear SVM, Spatial-Spectral, Ensemble
-│   │   ├── fitness/                           # Multi-objective fitness function (Accuracy, Redundancy, Sparsity)
+│   │   ├── preprocessing/                     # SNR band filtering, spectral normalizers
+│   │   ├── fitness/                           # Multi-objective fitness function (Redundancy Minimization + Shannon Entropy)
 │   │   ├── optimization/                      # Puma Optimizer (PO), PSO, WOA, GWO, DE
-│   │   ├── evaluation/                        # Benchmarks, metrics, statistical proofs, manifold separability
+│   │   ├── evaluation/                        # Benchmarks, metrics, and multi-seed runner
 │   │   ├── multispectral/                     # Full-scene multispectral cube exporter (.npy & TIFF)
-│   │   ├── three_band/                        # 3-band optimal search & baseline comparison
-│   │   └── visualization/                     # Convergence curves, boxplots, histograms, t-SNE, radar plots
+│   │   └── visualization/                     # Convergence curves, boxplots, histograms, signatures, heatmaps
 │   └── outputs/                               # Complete analytical research outputs
-│       ├── HYPERSPECTRAL_FACE_RECOGNITION_EXECUTIVE_REPORT.pdf  # 8-page complete executive report
+│       ├── HYPERSPECTRAL_BAND_OPTIMIZATION_REPORT.pdf  # Executive technical report
 │       ├── checkpoints/                       # 25 seed checkpoints (DE, GWO, PSO, PUMA, WOA across 5 seeds)
-│       ├── figures/                           # 12 publication-grade figures (t-SNE, radar, convergence, etc.)
-│       └── tables/                            # 11 quantitative tables (Friedman, Wilcoxon, progression, etc.)
+│       ├── figures/                           # Publication-grade scientific figures
+│       ├── multispectral/                     # Exported .npy & .tiff cubes (308:1 compression)
+│       └── tables/                            # Summary and baseline comparison CSVs
 │
 └── data/                                      # Data Ingestion & Storage
     └── README.md                              # Dataset format guide & gitignore documentation
@@ -210,19 +207,20 @@ For detailed explanations of the Puma Optimizer, multi-objective fitness formula
 
 ## 📄 Analytical Research Artifacts
 
-All experimental results, statistical tests, and publication-ready graphics for Track 2 are pre-compiled and readily viewable in [`track2_hyperspectral_puma/outputs/`](track2_hyperspectral_puma/outputs/):
-- **Executive PDF Report**: [`track2_hyperspectral_puma/outputs/HYPERSPECTRAL_FACE_RECOGNITION_EXECUTIVE_REPORT.pdf`](track2_hyperspectral_puma/outputs/HYPERSPECTRAL_FACE_RECOGNITION_EXECUTIVE_REPORT.pdf)
+All experimental results, 3-band optimizations, and publication-ready graphics for Track 2 are pre-compiled and readily viewable in [`track2_hyperspectral_puma/outputs/`](track2_hyperspectral_puma/outputs/):
+- **Executive PDF Report**: [`track2_hyperspectral_puma/outputs/HYPERSPECTRAL_BAND_OPTIMIZATION_REPORT.pdf`](track2_hyperspectral_puma/outputs/HYPERSPECTRAL_BAND_OPTIMIZATION_REPORT.pdf)
 - **Key Figures**:
-  - `accuracy_progression_bar.png`: Progressive accuracy gains from RGB Photo (41.05%) to PO-3 (51.24%) to All Bands (65.62%).
-  - `convergence_curves.png`: Optimization convergence comparing PUMA vs PSO, WOA, GWO, DE across 50 iterations.
-  - `radar_algorithm_benchmark.png`: Multi-dimensional radar comparing Accuracy, Convergence Speed, Redundancy Minimization, and Stability.
-  - `wilcoxon_pvalue_heatmap.png`: Matrix of statistical significance ($p$-values) proving PUMA's empirical superiority.
-  - `manifold_tsne_umap.png`: 2D t-SNE and UMAP clustering of 7 facial identities under PO-3 bands.
-  - `multispectral_pseudo_rgb.png`: Synthesized pseudo-RGB visualization of the optimal 3-band multispectral cube.
+  - `convergence_comparison.png`: Optimization convergence comparing PUMA vs PSO, WOA, GWO, DE across iterations.
+  - `metrics_boxplot.png`: Side-by-side boxplots for Fitness, Redundancy, and Information Entropy.
+  - `band_distribution_histogram.png`: Spectral selection frequency histogram across all metaheuristics.
+  - `spectral_signatures.png`: Calibrated facial reflectance profiles of 7 subjects with optimal bands overlaid.
+  - `correlation_heatmap.png`: Matrix comparison showing 925-band redundancy vs. 3-band decoupled correlation.
+  - `face_channels_comparison.png`: Visual channel comparison of optimal spectral bands.
+- **Multispectral Deliverables**:
+  - `po_optimal_3bands_multispectral.npy` & `.tiff`: Winning 3-band full-frame scene (308:1 compression ratio).
 - **Analytical Tables**:
-  - `three_band_comparison.csv`: Direct numerical comparison of PO-3 vs RGB-equivalent vs RGB photo vs Random 3 vs All bands.
-  - `statistical_tests_wilcoxon.csv`: Non-parametric signed-rank test statistics and two-tailed $p$-values.
-  - `friedman_rankings.json`: Multi-fold rank ordering across all 5 optimizers.
+  - `three_band_comparison.csv`: Direct numerical comparison of PUMA vs PSO, WOA, GWO, DE vs RGB vs Random vs All bands.
+  - `comparison_summary.csv`: Multi-seed aggregate benchmark performance matrix.
 
 ---
 
