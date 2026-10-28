@@ -1,55 +1,102 @@
 {
   "best_three_bands_filtered": [
-    328,
-    563,
-    882
+    564,
+    694,
+    696
   ],
   "best_three_bands_original": [
-    362,
-    597,
-    916
+    598,
+    728,
+    730
   ],
   "best_three_wavelengths": [
-    587.4099731445312,
-    709.3400268554688,
-    871.8699951171875
+    709.8599853515625,
+    776.4099731445312,
+    777.4299926757812
   ],
+  "puma_fitness": 0.2563944309949875,
+  "puma_redundancy": 0.32488730549812317,
+  "puma_information_entropy": 0.8766196370124817,
   "comparison_table": [
     {
-      "Configuration": "PO-3 bands (Puma Optimised)",
+      "Technique": "PUMA (Ours)",
       "Bands Count": 3,
-      "Band Wavelengths (nm)": "587.4, 709.3, 871.9",
-      "OA": 0.3797142301710731,
-      "F1": 0.34473208709817016,
-      "Kappa": 0.2737612008723156,
-      "Redundancy": 0.2979848384857178
+      "Selected Wavelengths (nm)": "709.9, 776.4, 777.4",
+      "Fitness (Minimization)": "0.2564",
+      "Redundancy": "0.3249",
+      "Info Entropy": "0.8766",
+      "Mean Variance": "0.7153",
+      "Span (nm)": "67.6"
     },
     {
-      "Configuration": "RGB-equivalent bands",
+      "Technique": "PSO (Competitor)",
       "Bands Count": 3,
-      "Band Wavelengths (nm)": "650.0, 550.1, 449.7",
-      "OA": 0.36486683514774493,
-      "F1": 0.34332925237403356,
-      "Kappa": 0.26101560512363264,
-      "Redundancy": 0.6793895363807678
+      "Selected Wavelengths (nm)": "415.6, 621.9, 710.4",
+      "Fitness (Minimization)": "0.2701",
+      "Redundancy": "0.1722",
+      "Info Entropy": "0.8127",
+      "Mean Variance": "0.3611",
+      "Span (nm)": "294.8"
     },
     {
-      "Configuration": "Random 3 bands (mean of 30)",
+      "Technique": "WOA (Competitor)",
       "Bands Count": 3,
-      "Band Wavelengths (nm)": "Random uniform",
-      "OA": 0.29256010238465524,
-      "F1": 0.23035265972353153,
-      "Kappa": 0.1718741095271638,
-      "Redundancy": 0.7737265398104985
+      "Selected Wavelengths (nm)": "621.9, 710.4, 749.3",
+      "Fitness (Minimization)": "0.2611",
+      "Redundancy": "0.2926",
+      "Info Entropy": "0.8636",
+      "Mean Variance": "0.6306",
+      "Span (nm)": "127.4"
     },
     {
-      "Configuration": "All bands (full spectrum)",
+      "Technique": "GWO (Competitor)",
+      "Bands Count": 3,
+      "Selected Wavelengths (nm)": "709.9, 773.9, 805.4",
+      "Fitness (Minimization)": "0.2725",
+      "Redundancy": "0.3190",
+      "Info Entropy": "0.8687",
+      "Mean Variance": "0.6318",
+      "Span (nm)": "95.6"
+    },
+    {
+      "Technique": "DE (Competitor)",
+      "Bands Count": 3,
+      "Selected Wavelengths (nm)": "710.4, 757.0, 783.0",
+      "Fitness (Minimization)": "0.2621",
+      "Redundancy": "0.3346",
+      "Info Entropy": "0.8642",
+      "Mean Variance": "0.7296",
+      "Span (nm)": "72.7"
+    },
+    {
+      "Technique": "RGB-equivalent Bands",
+      "Bands Count": 3,
+      "Selected Wavelengths (nm)": "650.0, 550.1, 449.7",
+      "Fitness (Minimization)": "0.4851",
+      "Redundancy": "0.6794",
+      "Info Entropy": "0.8541",
+      "Mean Variance": "0.4916",
+      "Span (nm)": "200.2"
+    },
+    {
+      "Technique": "Random 3 Bands (Monte Carlo)",
+      "Bands Count": 3,
+      "Selected Wavelengths (nm)": "Random uniform",
+      "Fitness (Minimization)": "0.5296 \u00b1 0.0471",
+      "Redundancy": "0.7737 \u00b1 0.1109",
+      "Info Entropy": "0.8483 \u00b1 0.0198",
+      "Mean Variance": "0.5139 \u00b1 0.0929",
+      "Span (nm)": "305.3 \u00b1 88.5"
+    },
+    {
+      "Technique": "All Bands (Full Spectrum)",
       "Bands Count": 925,
-      "Band Wavelengths (nm)": "412.3 - 893.1",
-      "OA": 0.30931667962674964,
-      "F1": 0.24122757300544986,
-      "Kappa": 0.1909662536309925,
-      "Redundancy": 0.7447512745857239
+      "Selected Wavelengths (nm)": "412.3 - 893.1",
+      "Fitness (Minimization)": "0.5135",
+      "Redundancy": "0.7448",
+      "Info Entropy": "0.8476",
+      "Mean Variance": "0.5231",
+      "Span (nm)": "480.8"
     }
   ]
 }

@@ -6,14 +6,14 @@
   },
   "num_selected_bands": 3,
   "original_band_indices": [
-    362,
-    597,
-    916
+    598,
+    728,
+    730
   ],
   "wavelengths_nm": [
-    587.4099731445312,
-    709.3400268554688,
-    871.8699951171875
+    709.8599853515625,
+    776.4099731445312,
+    777.4299926757812
   ],
   "data_type": "uint16",
   "file_npy": "po_optimal_3bands_multispectral.npy",
